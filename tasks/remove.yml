@@ -1,0 +1,12 @@
+- name: Remove User
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: absent
+    remove: true
+    shell: /bin/bash
+    groups: "{{ super_group }}"
+    append: true
+    force: true
+  loop:
+    - "{{ ansible_slave }}"
+    - "{{ custom_user }}"

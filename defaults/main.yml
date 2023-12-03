@@ -1,0 +1,6 @@
+---
+# defaults file for main_user
+ansible_slave: null
+super_group: "sudo"
+custom_user: null
+active_ssh_pub_key: fallback

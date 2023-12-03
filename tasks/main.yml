@@ -1,0 +1,69 @@
+# - name: Create User for Ansible
+#   tags: always
+#   ansible.builtin.user:
+#     name: "{{ ansible_user }}"
+#     state: present
+#     shell: /bin/bash
+#     groups: "{{ super_group }}"
+#     append: true
+- name: Create User(s)
+  tags: create_user
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: present
+    shell: /bin/bash
+    groups: "{{ super_group }}"
+    append: true
+  loop:
+    - "{{ ansible_slave }}"
+    - "{{ custom_user }}"
+
+- name: Debug
+  tags: debug
+  ansible.builtin.debug:
+    msg:
+    - "Debug of AnsibleUser:{{ansible_user}}"
+    - "Debug of SuperGroup:{{super_group}}"
+    - "Debug of CustomUser:{{custom_user}}"
+    - "Debug of SSHKey:{{ active_ssh_pub_key }}"
+    - "Debug of AnsibleSlave:{{ ansible_slave }}"
+
+- name: Deploy SSH Key (Public)
+  tags: 
+    - create_user
+  ansible.posix.authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: "{{ active_ssh_pub_key }}"
+  loop:
+    - "{{ ansible_slave }}"
+    - "{{ custom_user }}"
+
+# - name: Remove Users
+#   tags: remove
+#   import_tasks: remove.yml
+
+# - name: Remove User(s)
+#   tags: remove
+#   ansible.builtin.user:
+#     name: "{{ item }}"
+#     state: absent
+#   loop:
+#     - "{{ ansible_slave }}"
+#     - "{{ custom_user }}"
+
+
+# - name: "Add sudoers file for new Ansible User"
+#   tags: always
+#   copy:
+#     src: sudoers_ansible_user
+#     # If ansible_user changes the you MUST update sudoers
+#     dest: "/etc/sudoers.d/{{ item }}"
+#     owner: root
+#     group: "{{ super_group }}"
+#     mode: 0440
+#   loop:
+#     - "{{ ansible_slave }}"
+#     - "{{ custom_user }}"
+
+# Add to docker group
